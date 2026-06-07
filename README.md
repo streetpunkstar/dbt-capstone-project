@@ -253,17 +253,17 @@ Add a new record to `RAW.airport_comments`. Then materialize the incremental mod
 Add your solution in the next lines:
 * Adding a new record:
   ```
-  REPLACE THIS CODE BLOCK BY PASTING THE SQL for adding a new record to `RAW.airport_comments`
+  INSERT INTO AIRSTATS.RAW.AIRPORT_COMMENTS (id, airport_ident, date, member_nickname, subject, body) VALUES (999999, 'WIBL', CURRENT_TIMESTAMP(), 'Bro', 'Bro', 'Airplane Crashed Bro')
   ```
 * Command to execute to update this model (but only this model, not all the models):
   ```
-  REPLACE THIS CODE BLOCK BY PASTING THE dbt COMMAND YOU EXECUTED
+  dbt run -s +silver_airport_comments.sql
   ``` 
 * Execute an SQL on the Snowflake UI to ensure the new record has been added:
   ```
   REPLACE THIS CODE BLOCK BY PASTING 
-  1) THE SQL to extract the new record from `silver_airport_comments`
-  2) THE result you see in Snowflake
+  1) SELECT * FROM AIRSTATS.DEV.SILVER_AIRPORT_COMMENTS WHERE comment_id = 999999;
+  2) A new record ID in DEV.SILVER_AIRPORT_COMMENTS
   ``` 
 
 **Requirements** 
@@ -281,16 +281,24 @@ The airport `Los Angeles County Sheriff's Department Heliport` (airport_ident: `
 
 * Updating the record to "closed":
   ```
-  REPLACE THIS BLOCK BY PASTING THE SQL you executed
+  UPDATE AIRSTATS.RAW.AIRPORTS SET TYPE = 'closed' WHERE IDENT = '01CN'
   ```
 * Command to execute and snapshot update:
   ```
-  REPLACE THIS CODE BLOCK BY PASTING THE dbt COMMAND YOU EXECUTED
+  dbt snapshot
   ``` 
 
 #### Analyses
 * Create `analyses/la_heliport_closed.sql` where you validate if the snapshot went through - select every line corresponding to this airport in the snapshot table.
 * Execute the analysis and print the values to screen
+
+```commandline
+dbt show -s la_heliport_closed.sql
+| AIRPORT_IDENT | AIRPORT_TYPE | AIRPORT_NAME         | AIRPORT_LAT | AIRPORT_LONG | CONTINENT | ... |
+| ------------- | ------------ | -------------------- | ----------- | ------------ | --------- | --- |
+| 01CN          | closed       | Los Angeles Count... |     34.038… |    -118.154… | NA        | ... |
+| 01CN          | heliport     | Los Angeles Count... |     34.038… |    -118.154… | NA        | ... |
+```
 
 ### Exercise 10: Snapshot on silver_runways
 * Create a snapshot for `silver_runways`, call it `scd_silver_runways`. Use the same check strategy as for `scd_silver_airports`.
