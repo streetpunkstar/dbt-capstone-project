@@ -1,0 +1,89 @@
+models:
+  - name: silver_airports
+    description: Clean List of airports
+    columns:
+      - name: airport_ident
+        description: Primary key for the airport
+        data_tests:
+          - unique
+          - not_null
+      - name: airport_type
+        description: Airport type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['seaplane_base', 'balloonport', 'medium_airport', 'small_airport', 'large_airport', 'heliport', 'closed']
+      - name: airport_lat
+        description: Airport Latitude
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: -90
+              max_value: 90
+              inclusive: false
+              severity: warn
+      - name: airport_long
+        description: Airport Longitude
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: -180
+              max_value: 180
+              inclusive: false
+              severity: warn
+  - name: silver_runways
+    description: Clean List of runways
+    columns:
+      - name: runway_id
+        description: Primary key for the runway
+        data_tests:
+          - unique
+          - not_null
+      - name: airport_ident
+        description: Airport Identification Code
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('silver_airports')
+                field: airport_ident
+              severity: warn
+      - name: runway_length_ft
+        description: Runway length in feet
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              severity: warn
+      - name: runway_width_ft
+        description: Runway length in feet
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              severity: warn
+      - name: runway_lighted
+        description: "{{ doc('silver_runways_runway_lighted') }}"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['True', 'False']
+      - name: runway_closed
+        description: "{{ doc('silver_runways_runway_closed') }}"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['True', 'False']
+  - name: silver_airport_comments
+    description: Clean List of Airport Comments
+    columns:
+      - name: comment_id
+        description: Primary key for the comment table
+        data_tests:
+          - unique
+          - not_null
+      - name: airport_ident
+        description: Airport Identification Code
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('silver_airports')
+                field: airport_ident
+              severity: warn
